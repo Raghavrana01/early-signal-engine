@@ -4,7 +4,7 @@ load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 
-from storage.db import init_db, insert_article, get_all_articles_grouped_by_source
+from storage.db import init_db, insert_article, get_all_articles_grouped_by_source, get_recent_articles
 from ingest.rss_fetcher import fetch_rss
 from ingest.arxiv_fetcher import fetch_arxiv
 from ingest.reddit_fetcher import fetch_reddit
@@ -49,9 +49,10 @@ def run_pipeline():
             
     print(f"Inserted {reddit_inserted} new Reddit articles.")
     
-    if new_articles:
-        print("Running AI logic pipeline...")
-        brief = run_summarizer(new_articles)
+    recent_articles = get_recent_articles(limit=20)
+    if recent_articles:
+        print("Running AI logic pipeline on the last 20 articles...")
+        brief = run_summarizer(recent_articles)
         if brief:
             print("Sending AI brief to Discord...")
             send_brief(DISCORD_WEBHOOK_URL, brief)

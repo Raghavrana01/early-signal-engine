@@ -59,3 +59,22 @@ def get_all_articles_grouped_by_source():
             'published_at': published_at
         })
     return grouped
+
+def get_recent_articles(limit=20):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('SELECT source, title, link, summary, published_at FROM articles ORDER BY created_at DESC LIMIT ?', (limit,))
+    rows = c.fetchall()
+    conn.close()
+    
+    articles = []
+    for row in rows:
+        source, title, link, summary, published_at = row
+        articles.append({
+            'source': source,
+            'title': title,
+            'link': link,
+            'summary': summary,
+            'published_at': published_at
+        })
+    return articles

@@ -88,7 +88,47 @@ def synthesize_trend(scored_articles):
     )
     return response.text.strip()
 
-def format_discord_brief(scored_articles, macro_trend, initial_count):
+def generate_ideas(top_articles):
+    if not top_articles:
+        return ""
+    prompt = f"""
+    You are an AI product strategist for solo builders.
+    Read these highly-scored AI articles and generate 2 to 3 concrete, realistic product ideas a solo developer could build.
+    Return ONLY a JSON list of objects. Each object MUST have:
+    - 'name': [Product Name]
+    - 'what': [one line description]
+    - 'customer': [who pays for this]
+    - 'money': [how you make money]
+    - 'time': [realistic estimate for MVP time]
+    
+    Articles:
+    {json.dumps(top_articles, indent=2)}
+    """
+    client = get_client()
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt
+    )
+    try:
+        ideas = json.loads(clean_json(response.text))
+        
+        if not ideas:
+            return ""
+            
+        text = "💡 BUILDER OPPORTUNITIES\n\n"
+        for i, idea in enumerate(ideas, 1):
+            text += f"{i}. {idea.get('name', 'Idea')}\n"
+            text += f"What: {idea.get('what', '')}\n"
+            text += f"Customer: {idea.get('customer', '')}\n"
+            text += f"Money: {idea.get('money', '')}\n"
+            text += f"MVP time: {idea.get('time', '')}\n\n"
+            
+        return text.strip()
+    except Exception as e:
+        print(f"Error generating ideas: {e}\nRaw: {response.text}")
+        return ""
+
+def format_discord_brief(scored_articles, macro_trend, initial_count, ideas_text=""):
     high_count = sum(1 for a in scored_articles if a.get('score', 0) >= 8)
     med_count = sum(1 for a in scored_articles if 5 <= a.get('score', 0) < 8)
     filtered_count = initial_count - len(scored_articles)
@@ -108,6 +148,10 @@ def format_discord_brief(scored_articles, macro_trend, initial_count):
         brief += f"Link: {article.get('link', '')}\n\n"
         
     brief += f"🧠 MACRO TREND\n{macro_trend}\n\n"
+    
+    if ideas_text:
+        brief += f"{ideas_text}\n\n"
+        
     brief += f"📊 BREAKDOWN\n🔴 High impact (8+): {high_count} 🟡 Medium (5-7): {med_count} ⚪ Filtered out: {filtered_count}"
     
     return brief
@@ -128,6 +172,10 @@ def run_summarizer(articles):
     print("Agent 3: Synthesizing macro trend...")
     trend = synthesize_trend(scored)
     
+    print("Agent 4: Generating product ideas...")
+    top_scored = [a for a in scored if a.get('score', 0) >= 8]
+    ideas_text = generate_ideas(top_scored)
+    
     print("Formatting brief...")
-    brief = format_discord_brief(scored, trend, len(articles))
+    brief = format_discord_brief(scored, trend, len(articles), ideas_text)
     return brief
