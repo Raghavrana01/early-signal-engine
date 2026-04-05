@@ -7,7 +7,7 @@ FEEDS = [
     {"name": "Ars Technica AI", "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
     {"name": "Wired AI", "url": "https://www.wired.com/feed/tag/ai/latest/rss"},
     {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/"},
-    {"url": "https://news.ycombinator.com/rss", "source": "Hacker News"},
+    {"name": "Hacker News", "url": "https://news.ycombinator.com/rss"},
     {"name": "r/LocalLLaMA", "url": "https://www.reddit.com/r/LocalLLaMA/.rss"},
     {"name": "Import AI", "url": "https://jack-clark.net/feed"},
     {"name": "The Batch", "url": "https://www.deeplearning.ai/the-batch/rss"},
