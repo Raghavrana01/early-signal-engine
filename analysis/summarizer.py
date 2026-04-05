@@ -35,7 +35,7 @@ def curate_articles(articles):
     """
     client = get_client()
     response = client.models.generate_content(
-        model='gemini-2.5-flash-preview-04-17',
+        model='gemini-2.5-flash',
         contents=prompt
     )
     try:
@@ -64,7 +64,7 @@ def score_and_analyze(curated_articles):
     """
     client = get_client()
     response = client.models.generate_content(
-        model='gemini-2.5-flash-preview-04-17',
+        model='gemini-2.5-flash',
         contents=prompt
     )
     try:
@@ -89,7 +89,7 @@ def synthesize_trend(scored_articles):
     """
     client = get_client()
     response = client.models.generate_content(
-        model='gemini-2.5-flash-preview-04-17',
+        model='gemini-2.5-flash',
         contents=prompt
     )
     return response.text.strip()
@@ -122,7 +122,7 @@ def generate_ideas(top_articles):
     client = get_client()
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash-preview-04-17',
+            model='gemini-2.5-flash',
             contents=prompt
         )
         
