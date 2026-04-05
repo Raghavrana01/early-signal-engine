@@ -28,6 +28,15 @@ def init_db():
             created_at TEXT NOT NULL
         )
     ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS brief_scores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            high_count INTEGER NOT NULL,
+            medium_count INTEGER NOT NULL,
+            filtered_count INTEGER NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -112,3 +121,31 @@ def delete_old_articles(days=30):
     c.execute(f"DELETE FROM articles WHERE datetime(created_at) < datetime('now', '-{days} days')")
     conn.commit()
     conn.close()
+
+def save_brief_score(high_count, medium_count, filtered_count):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO brief_scores (high_count, medium_count, filtered_count, created_at)
+        VALUES (?, ?, ?, ?)
+    ''', (high_count, medium_count, filtered_count, datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+
+def get_avg_scores():
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('SELECT AVG(high_count), AVG(medium_count), AVG(filtered_count) FROM brief_scores')
+    row = c.fetchone()
+    conn.close()
+    if row and row[0] is not None:
+        return {'high': round(row[0], 1), 'medium': round(row[1], 1), 'filtered': round(row[2], 1)}
+    return {'high': 0, 'medium': 0, 'filtered': 0}
+
+def get_recent_macro_trends(days=7):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(f"SELECT trend, created_at FROM macro_trends WHERE datetime(created_at) >= datetime('now', '-{days} days') ORDER BY created_at DESC")
+    rows = c.fetchall()
+    conn.close()
+    return [{"trend": row[0], "created_at": row[1]} for row in rows]

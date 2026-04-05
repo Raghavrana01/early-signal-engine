@@ -161,20 +161,20 @@ def format_discord_brief(scored_articles, macro_trend, initial_count, ideas_text
         
     brief += f"📊 BREAKDOWN\n🔴 High impact (8+): {high_count} 🟡 Medium (5-7): {med_count} ⚪ Filtered out: {filtered_count}"
     
-    return brief
+    return brief, high_count, med_count, filtered_count
 
 def run_summarizer(articles):
     print("Agent 1: Curating articles...")
     curated = curate_articles(articles)
     
     if not curated:
-        return None, None
+        return None, None, None
         
     print("Agent 2: Scoring and analyzing...")
     scored = score_and_analyze(curated)
     
     if not scored:
-        return None, None
+        return None, None, None
         
     print("Agent 3: Synthesizing macro trend...")
     trend = synthesize_trend(scored)
@@ -184,5 +184,5 @@ def run_summarizer(articles):
     ideas_text = generate_ideas(top_scored)
     
     print("Formatting brief...")
-    brief = format_discord_brief(scored, trend, len(articles), ideas_text)
-    return brief, trend
+    brief, high_count, med_count, filtered_count = format_discord_brief(scored, trend, len(articles), ideas_text)
+    return brief, trend, {'high': high_count, 'medium': med_count, 'filtered': filtered_count}
