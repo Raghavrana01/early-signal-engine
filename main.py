@@ -7,6 +7,7 @@ DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 from storage.db import init_db, insert_article, get_all_articles_grouped_by_source
 from ingest.rss_fetcher import fetch_rss
 from ingest.arxiv_fetcher import fetch_arxiv
+from ingest.reddit_fetcher import fetch_reddit
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import time
@@ -36,6 +37,16 @@ def run_pipeline():
             arxiv_inserted += 1
             
     print(f"Inserted {arxiv_inserted} new arXiv articles.")
+    
+    print("Fetching from Reddit...")
+    reddit_articles = fetch_reddit()
+    reddit_inserted = 0
+    for article in reddit_articles:
+        if insert_article(article['title'], article['source'], article['link'], article['summary'], article['published_at']):
+            new_articles.append(article)
+            reddit_inserted += 1
+            
+    print(f"Inserted {reddit_inserted} new Reddit articles.")
     
     if new_articles:
         print("Sending digest to Discord...")
