@@ -11,7 +11,8 @@ from ingest.reddit_fetcher import fetch_reddit
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import time
-from notify.discord_notifier import send_digest, send_test_message
+from notify.discord_notifier import send_test_message, send_brief
+from analysis.summarizer import run_summarizer
 
 def run_pipeline():
     print(f"\n[{datetime.now().isoformat()}] Starting pipeline run...")
@@ -49,8 +50,13 @@ def run_pipeline():
     print(f"Inserted {reddit_inserted} new Reddit articles.")
     
     if new_articles:
-        print("Sending digest to Discord...")
-        send_digest(DISCORD_WEBHOOK_URL, new_articles)
+        print("Running AI logic pipeline...")
+        brief = run_summarizer(new_articles)
+        if brief:
+            print("Sending AI brief to Discord...")
+            send_brief(DISCORD_WEBHOOK_URL, brief)
+        else:
+            print("Summarizer returned empty. Not sending brief.")
     
     print("\n================== ALL SIGNALS ==================\n")
     grouped = get_all_articles_grouped_by_source()
