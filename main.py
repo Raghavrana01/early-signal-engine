@@ -4,7 +4,7 @@ load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 
-from storage.db import init_db, insert_article, get_all_articles_grouped_by_source, get_recent_articles
+from storage.db import init_db, insert_article, get_all_articles_grouped_by_source, get_recent_articles, save_macro_trend
 from ingest.rss_fetcher import fetch_rss
 from ingest.arxiv_fetcher import fetch_arxiv
 from ingest.reddit_fetcher import fetch_reddit
@@ -67,10 +67,13 @@ def run_pipeline():
     recent_articles = get_recent_articles(limit=20)
     if recent_articles:
         print("Running AI logic pipeline on the last 20 articles...")
-        brief = run_summarizer(recent_articles)
+        brief, macro_trend = run_summarizer(recent_articles)
         if brief:
             print("Sending AI brief to Discord...")
             send_brief(DISCORD_WEBHOOK_URL, brief)
+            if macro_trend:
+                save_macro_trend(macro_trend)
+                print("Saved macro trend.")
         else:
             print("Summarizer returned empty. Not sending brief.")
     

@@ -21,6 +21,13 @@ def init_db():
             created_at TEXT NOT NULL
         )
     ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS macro_trends (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            trend TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -78,3 +85,23 @@ def get_recent_articles(limit=20):
             'published_at': published_at
         })
     return articles
+
+def save_macro_trend(trend_text):
+    if not trend_text:
+        return
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO macro_trends (trend, created_at)
+        VALUES (?, ?)
+    ''', (trend_text, datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+
+def get_last_macro_trend():
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('SELECT trend FROM macro_trends ORDER BY created_at DESC LIMIT 1')
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else None

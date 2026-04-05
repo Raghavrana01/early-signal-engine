@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from storage.db import get_last_macro_trend
 from google import genai
 
 def get_client():
@@ -75,8 +76,12 @@ def score_and_analyze(curated_articles):
 def synthesize_trend(scored_articles):
     if not scored_articles:
         return "No notable macro trend detected this period due to insufficient data."
+        
+    last_trend = get_last_macro_trend()
+    trend_context = f"\n    Last week's macro trend was: {last_trend}. Either confirm this trend is continuing with new evidence, or identify what has changed.\n" if last_trend else ""
+    
     prompt = f"""
-    You are a macro-analyst. Read the following AI-related articles and write a 2-3 sentence macro trend paragraph explaining what all of this points to this week.
+    You are a macro-analyst. Read the following AI-related articles and write a 2-3 sentence macro trend paragraph explaining what all of this points to this week.{trend_context}
     Return only the paragraph text smoothly readable. Do NOT use markdown.
     
     Articles:
@@ -163,13 +168,13 @@ def run_summarizer(articles):
     curated = curate_articles(articles)
     
     if not curated:
-        return None
+        return None, None
         
     print("Agent 2: Scoring and analyzing...")
     scored = score_and_analyze(curated)
     
     if not scored:
-        return None
+        return None, None
         
     print("Agent 3: Synthesizing macro trend...")
     trend = synthesize_trend(scored)
@@ -180,4 +185,4 @@ def run_summarizer(articles):
     
     print("Formatting brief...")
     brief = format_discord_brief(scored, trend, len(articles), ideas_text)
-    return brief
+    return brief, trend
