@@ -76,18 +76,7 @@ def run_pipeline():
                 print("Saved macro trend.")
         else:
             print("Summarizer returned empty. Not sending brief.")
-    
-    print("\n================== ALL SIGNALS ==================\n")
-    grouped = get_all_articles_grouped_by_source()
-    for source, articles in grouped.items():
-        print(f"=== {source} ({len(articles)} articles) ===")
-        for article in articles:
-            print(f"- {article['title']}")
-            print(f"  Link: {article['link']}")
-            if article['published_at']:
-                print(f"  Published: {article['published_at']}")
-            print()
-        print("-" * 50)
+            
     print(f"[{datetime.now().isoformat()}] Pipeline run complete.\n")
 
 def main():
