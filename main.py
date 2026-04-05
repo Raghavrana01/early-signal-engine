@@ -14,6 +14,8 @@ import time
 from notify.discord_notifier import send_test_message, send_brief
 from analysis.summarizer import run_summarizer
 
+WATCHLIST = ["AGI", "ASI", "Anthropic", "acquisition", "raises", "jailbreak", "agent", "shutdown", "leaked", "regulation", "breach", "open weights", "fine-tune"]
+
 def run_pipeline():
     print(f"\n[{datetime.now().isoformat()}] Starting pipeline run...")
     print("Initializing database...")
@@ -49,6 +51,19 @@ def run_pipeline():
             
     print(f"Inserted {reddit_inserted} new Reddit articles.")
     
+    alert_lines = []
+    for article in new_articles:
+        title = article['title']
+        title_lower = title.lower()
+        for keyword in WATCHLIST:
+            if keyword.lower() in title_lower:
+                alert_lines.append(f'🔑 "{keyword}" — {title}')
+                
+    if alert_lines:
+        print("Sending WATCHLIST alerts to Discord...")
+        alert_msg = "🚨 WATCHLIST ALERTS\n\n" + "\n".join(alert_lines)
+        send_brief(DISCORD_WEBHOOK_URL, alert_msg)
+        
     recent_articles = get_recent_articles(limit=20)
     if recent_articles:
         print("Running AI logic pipeline on the last 20 articles...")
