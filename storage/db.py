@@ -105,3 +105,10 @@ def get_last_macro_trend():
     row = c.fetchone()
     conn.close()
     return row[0] if row else None
+
+def delete_old_articles(days=30):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(f"DELETE FROM articles WHERE datetime(created_at) < datetime('now', '-{days} days')")
+    conn.commit()
+    conn.close()

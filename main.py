@@ -4,13 +4,14 @@ load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 
-from storage.db import init_db, insert_article, get_all_articles_grouped_by_source, get_recent_articles, save_macro_trend
+from storage.db import init_db, insert_article, get_all_articles_grouped_by_source, get_recent_articles, save_macro_trend, delete_old_articles
 from ingest.rss_fetcher import fetch_rss
 from ingest.arxiv_fetcher import fetch_arxiv
 from ingest.reddit_fetcher import fetch_reddit
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import time
+import json
 from notify.discord_notifier import send_test_message, send_brief
 from analysis.summarizer import run_summarizer
 
@@ -20,6 +21,9 @@ def run_pipeline():
     print(f"\n[{datetime.now().isoformat()}] Starting pipeline run...")
     print("Initializing database...")
     init_db()
+    
+    print("Cleaning up old articles...")
+    delete_old_articles(days=30)
     
     print("Fetching from RSS feeds...")
     rss_articles = fetch_rss()
@@ -55,9 +59,12 @@ def run_pipeline():
     for article in new_articles:
         title = article['title']
         title_lower = title.lower()
+        matched_keywords = []
         for keyword in WATCHLIST:
             if keyword.lower() in title_lower:
-                alert_lines.append(f'🔑 "{keyword}" — {title}')
+                matched_keywords.append(keyword)
+        if matched_keywords:
+            alert_lines.append(f'🔑 {json.dumps(matched_keywords)} — {title}')
                 
     if alert_lines:
         print("Sending WATCHLIST alerts to Discord...")
