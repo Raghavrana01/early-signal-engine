@@ -14,8 +14,6 @@ FEEDS = [
     {"name": "LessWrong", "url": "https://www.lesswrong.com/feed.xml"},
     {"name": "Bloomberg Technology", "url": "https://feeds.bloomberg.com/technology/news.rss"},
     {"name": "Reuters Technology", "url": "https://feeds.reuters.com/reuters/technologyNews"},
-    {"name": "r/investing", "url": "https://www.reddit.com/r/investing/.rss"},
-    {"name": "r/stocks", "url": "https://www.reddit.com/r/stocks/.rss"},
     {"name": "GitHub Trending", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml"}
 ]
 

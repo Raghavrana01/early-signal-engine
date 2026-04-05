@@ -56,6 +56,7 @@ def score_and_analyze(curated_articles):
     Return ONLY a JSON list of the articles. Each object MUST have:
     'title', 'link', 'source', 'score' (number 1-10), 'category', 'why', 'opportunity'.
     Do not return any other text outside the JSON array.
+    Score articles relative to each other, not on an absolute scale. The best article in this batch should score 9-10, the worst relevant one should score 4-5. Avoid clustering all scores in the 7-8 range. Force meaningful differentiation between scores.
     
     Articles:
     {json.dumps(curated_articles, indent=2)}
