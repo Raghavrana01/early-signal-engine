@@ -4,7 +4,9 @@ FEEDS = [
     {"name": "TechCrunch AI", "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
     {"name": "MIT Tech Review AI", "url": "https://www.technologyreview.com/feed/"},
     {"name": "The Verge AI", "url": "https://www.theverge.com/ai-artificial-intelligence/rss/index.xml"},
-    {"name": "Ars Technica AI", "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"}
+    {"name": "Ars Technica AI", "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
+    {"name": "Wired AI", "url": "https://www.wired.com/feed/tag/ai/latest/rss"},
+    {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/"}
 ]
 
 def fetch_rss():

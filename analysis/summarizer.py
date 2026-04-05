@@ -1,15 +1,13 @@
 import os
 import json
 from datetime import datetime
-import google.generativeai as genai
+from google import genai
 
-def get_model():
+def get_client():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("WARNING: GEMINI_API_KEY not found in environment")
-    genai.configure(api_key=api_key)
-    # Using the flash model for speed and cost effectiveness on sequential tasks
-    return genai.GenerativeModel('gemini-2.5-flash')
+    return genai.Client(api_key=api_key)
 
 def clean_json(text):
     text = text.strip()
@@ -34,8 +32,11 @@ def curate_articles(articles):
     Articles:
     {json.dumps(articles, indent=2)}
     """
-    model = get_model()
-    response = model.generate_content(prompt)
+    client = get_client()
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt
+    )
     try:
         return json.loads(clean_json(response.text))
     except Exception as e:
@@ -59,8 +60,11 @@ def score_and_analyze(curated_articles):
     Articles:
     {json.dumps(curated_articles, indent=2)}
     """
-    model = get_model()
-    response = model.generate_content(prompt)
+    client = get_client()
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt
+    )
     try:
         return json.loads(clean_json(response.text))
     except Exception as e:
@@ -77,8 +81,11 @@ def synthesize_trend(scored_articles):
     Articles:
     {json.dumps(scored_articles, indent=2)}
     """
-    model = get_model()
-    response = model.generate_content(prompt)
+    client = get_client()
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt
+    )
     return response.text.strip()
 
 def format_discord_brief(scored_articles, macro_trend, initial_count):
