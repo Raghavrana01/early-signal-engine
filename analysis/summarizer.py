@@ -92,40 +92,41 @@ def generate_ideas(top_articles):
     if not top_articles:
         return ""
     prompt = f"""
-    You are an AI product strategist for solo builders.
-    Read these highly-scored AI articles and generate 2 to 3 concrete, realistic product ideas a solo developer could build.
-    Return ONLY a JSON list of objects. Each object MUST have:
-    - 'name': [Product Name]
-    - 'what': [one line description]
-    - 'customer': [who pays for this]
-    - 'money': [how you make money]
-    - 'time': [realistic estimate for MVP time]
+    You are a product idea generator for a solo builder with no team, no funding, and no interest in marketing or content creation. You build faceless, monetizable products.
+    Given these high-signal AI/tech articles, generate 2-3 product ideas. Each idea MUST pass all 3 of these filters before being included:
+
+    Someone will pay for this within 30 days of launch — there is clear, immediate demand
+    A solo developer can build the MVP in under 4 weeks using AI tools
+    The idea is directly aligned with a current market movement visible in the signals
+
+    If an idea fails any filter, discard it and find a better one.
+    For each idea that passes all 3 filters, output:
+    [Product Name]
+    What: [one line, specific and concrete — not vague]
+    Customer: [exact person who pays, not "businesses" or "developers"]
+    Why they pay now: [what makes this urgent in the next 30 days]
+    Money: [specific monetization — price point, model]
+    MVP time: [honest estimate in weeks]
+    Filter check: ✅ 30-day demand | ✅ Solo buildable | ✅ Signal aligned
+    Be brutally honest. It is better to output 1 strong idea than 3 weak ones.
     
     Articles:
     {json.dumps(top_articles, indent=2)}
     """
     client = get_client()
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=prompt
-    )
     try:
-        ideas = json.loads(clean_json(response.text))
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         
-        if not ideas:
+        out_text = response.text.strip()
+        if not out_text:
             return ""
             
-        text = "💡 BUILDER OPPORTUNITIES\n\n"
-        for i, idea in enumerate(ideas, 1):
-            text += f"{i}. {idea.get('name', 'Idea')}\n"
-            text += f"What: {idea.get('what', '')}\n"
-            text += f"Customer: {idea.get('customer', '')}\n"
-            text += f"Money: {idea.get('money', '')}\n"
-            text += f"MVP time: {idea.get('time', '')}\n\n"
-            
-        return text.strip()
+        return f"💡 BUILDER OPPORTUNITIES\n\n{out_text}"
     except Exception as e:
-        print(f"Error generating ideas: {e}\nRaw: {response.text}")
+        print(f"Error generating ideas: {e}")
         return ""
 
 def format_discord_brief(scored_articles, macro_trend, initial_count, ideas_text=""):
