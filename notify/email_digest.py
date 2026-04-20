@@ -68,7 +68,3 @@ def send_weekly_digest():
     except Exception as e:
         print(f"Failed to send weekly digest email: {e}")
 
-if __name__ == "__main__":
-    from dotenv import load_dotenv
-    load_dotenv()
-    send_weekly_digest()

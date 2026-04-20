@@ -14,6 +14,7 @@ import time
 import json
 from notify.discord_notifier import send_test_message, send_brief
 from analysis.summarizer import run_summarizer
+from notify.email_digest import send_weekly_digest
 
 WATCHLIST = ["AGI", "ASI", "Anthropic", "acquisition", "raises", "jailbreak", "agent", "shutdown", "leaked", "regulation", "breach", "open weights", "fine-tune"]
 
@@ -105,6 +106,7 @@ def run_pipeline():
             print("Summarizer returned empty. Not sending brief.")
             
     print(f"[{datetime.now().isoformat()}] Pipeline run complete.\n")
+    send_weekly_digest()
 
 def main():
     print("Starting Early Signal Engine Scheduler...")
