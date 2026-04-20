@@ -61,9 +61,11 @@ def send_weekly_digest():
 
     try:
         print(f"Sending digest email to {email_to} via smtp.gmail.com...")
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.ehlo()
+            server.starttls()
             server.login(email_from, email_password)
-            server.send_message(msg)
+            server.sendmail(email_from, email_to, msg.as_string())
         print("Weekly digest email sent successfully.")
     except Exception as e:
         print(f"Failed to send weekly digest email: {e}")
